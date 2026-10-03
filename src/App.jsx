@@ -106,61 +106,96 @@ export default function App() {
   const { cols } = LEVELS[level];
 
   return (
-    <main className="app">
-      <h1 className="title">Memory Match</h1>
-      <p className="subtitle">Find all the pairs with the fewest moves.</p>
+    <div className="min-h-screen bg-linear-to-br from-[#ffe3ee] to-[#e6dcff] text-brand-ink">
+      <main className="mx-auto flex max-w-3xl flex-col items-center px-4 pb-10 pt-7">
+        <h1 className="text-[length:clamp(34px,7vw,52px)] font-semibold">Memory Match</h1>
+        <p className="mb-4 mt-1 opacity-70">Find all the pairs with the fewest moves.</p>
 
-      <div className="levels">
-        {Object.entries(LEVELS).map(([key, l]) => (
-          <button
-            key={key}
-            className={`pill ${key === level ? "active" : ""}`}
-            aria-pressed={key === level}
-            onClick={() => newGame(key)}
-          >
-            {l.label}
-          </button>
-        ))}
-      </div>
+        {/* level buttons */}
+        <div className="mb-4 flex gap-2">
+          {Object.entries(LEVELS).map(([key, l]) => (
+            <button
+              key={key}
+              aria-pressed={key === level}
+              onClick={() => newGame(key)}
+              className={`cursor-pointer rounded-full border-2 border-brand-lilac px-[18px] py-2 transition hover:-translate-y-0.5 ${
+                key === level ? "bg-brand-lilac text-white" : ""
+              }`}
+            >
+              {l.label}
+            </button>
+          ))}
+        </div>
 
-      <div className="stats">
-        <div className="stat"><span>Moves</span><b>{moves}</b></div>
-        <div className="stat"><span>Time</span><b>{formatTime(seconds)}</b></div>
-        <div className="stat"><span>Best</span><b>{best[level] ?? "–"}</b></div>
-      </div>
+        {/* moves / time / best */}
+        <div className="mb-4 flex gap-3">
+          {[
+            ["Moves", moves],
+            ["Time", formatTime(seconds)],
+            ["Best", best[level] ?? "–"],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="flex min-w-[92px] flex-col rounded-2xl bg-white/70 px-3.5 py-2 text-center"
+            >
+              <span className="text-[13px] opacity-60">{label}</span>
+              <b className="text-[22px] font-semibold">{value}</b>
+            </div>
+          ))}
+        </div>
 
-      <div className="board" style={{ "--cols": cols }}>
-        {deck.map((card) => (
-          <Card
-            key={card.id}
-            emoji={card.emoji}
-            faceUp={flipped.includes(card.id) || matched.includes(card.id)}
-            matched={matched.includes(card.id)}
-            onClick={() => pick(card.id)}
-          />
-        ))}
-      </div>
+        {/* board (columns depend on the level, so these two are inline styles) */}
+        <div
+          className="grid gap-2.5"
+          style={{
+            gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+            width: `min(100%, ${cols * 120}px)`,
+          }}
+        >
+          {deck.map((card) => (
+            <Card
+              key={card.id}
+              emoji={card.emoji}
+              faceUp={flipped.includes(card.id) || matched.includes(card.id)}
+              matched={matched.includes(card.id)}
+              onClick={() => pick(card.id)}
+            />
+          ))}
+        </div>
 
-      <button className="restart" onClick={() => newGame()}>New game</button>
+        <button
+          onClick={() => newGame()}
+          className="mt-5 cursor-pointer rounded-full bg-brand-pink px-6 py-2.5 text-lg text-white shadow-[0_4px_0_#e0688a] active:translate-y-[3px] active:shadow-[0_1px_0_#e0688a]"
+        >
+          New game
+        </button>
+      </main>
 
       {won && (
-        <div className="win">
+        <div className="fixed inset-0 z-10 flex items-center justify-center overflow-hidden bg-brand-ink/45">
           {Array.from({ length: 24 }, (_, i) => (
             <i
               key={i}
-              className="confetti"
+              className="absolute -top-10 animate-fall text-[26px] not-italic"
               style={{ left: `${i * 4 + (i % 3)}%`, animationDelay: `${(i % 8) * 0.25}s` }}
             >
               {["🎉", "✨", "💖", "⭐"][i % 4]}
             </i>
           ))}
-          <div className="win-card">
-            <h2>You did it! 🎉</h2>
-            <p>{moves} moves in {formatTime(seconds)}</p>
-            <button className="restart" onClick={() => newGame()}>Play again</button>
+          <div className="animate-rise rounded-3xl bg-brand-cream px-10 py-7 text-center">
+            <h2 className="mb-1.5 text-2xl font-semibold">You did it! 🎉</h2>
+            <p className="text-xl">
+              {moves} moves in {formatTime(seconds)}
+            </p>
+            <button
+              onClick={() => newGame()}
+              className="mt-5 cursor-pointer rounded-full bg-brand-pink px-6 py-2.5 text-lg text-white shadow-[0_4px_0_#e0688a] active:translate-y-[3px] active:shadow-[0_1px_0_#e0688a]"
+            >
+              Play again
+            </button>
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
