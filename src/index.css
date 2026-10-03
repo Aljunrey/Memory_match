@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* dark: classes apply when <html> has the "dark" class */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Our colors, font and animations. Tailwind turns these into classes,
    for example --color-brand-pink gives us bg-brand-pink and text-brand-pink. */
 @theme {

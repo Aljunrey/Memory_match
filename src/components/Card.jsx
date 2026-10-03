@@ -21,7 +21,9 @@ export default function Card({ emoji, faceUp, matched, onClick }) {
         {/* front of the card */}
         <span
           className={`absolute inset-0 flex items-center justify-center rounded-2xl text-[length:clamp(28px,8vw,46px)] shadow-md shadow-purple-900/20 [backface-visibility:hidden] [transform:rotateY(180deg)] ${
-            matched ? "animate-pop bg-[#e4ffe9]" : "bg-brand-cream"
+            matched
+              ? "animate-pop bg-[#e4ffe9] dark:bg-[#1f4d36] dark:text-white"
+              : "bg-brand-cream dark:bg-[#2f2a45]"
           }`}
         >
           {emoji}

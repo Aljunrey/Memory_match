@@ -29,6 +29,14 @@ function formatTime(s) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
+function loadTheme() {
+  try {
+    return localStorage.getItem("theme") === "dark";
+  } catch {
+    return false;
+  }
+}
+
 function loadBest() {
   try {
     return JSON.parse(localStorage.getItem("memory-best")) || {};
@@ -46,9 +54,20 @@ export default function App() {
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
   const [best, setBest] = useState(loadBest); // fewest moves per level
+  const [dark, setDark] = useState(loadTheme);
 
   const hideTimer = useRef(null);
   const won = matched.length === deck.length;
+
+  // add or remove the "dark" class on <html> and remember the choice
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark);
+    try {
+      localStorage.setItem("theme", dark ? "dark" : "light");
+    } catch {
+      /* ignore */
+    }
+  }, [dark]);
 
   // the clock ticks while a game is running
   useEffect(() => {
@@ -106,7 +125,15 @@ export default function App() {
   const { cols } = LEVELS[level];
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#ffe3ee] to-[#e6dcff] text-brand-ink">
+    <div className="relative min-h-screen bg-linear-to-br from-[#ffe3ee] to-[#e6dcff] text-brand-ink transition-colors dark:from-[#1b1830] dark:to-[#2b2147] dark:text-white">
+      <button
+        onClick={() => setDark((d) => !d)}
+        aria-label="Toggle dark mode"
+        className="absolute right-4 top-4 cursor-pointer rounded-full bg-white/70 px-3.5 py-2 text-xl transition hover:scale-110 dark:bg-white/15"
+      >
+        {dark ? "☀️" : "🌙"}
+      </button>
+
       <main className="mx-auto flex max-w-3xl flex-col items-center px-4 pb-10 pt-7">
         <h1 className="text-[length:clamp(34px,7vw,52px)] font-semibold">Memory Match</h1>
         <p className="mb-4 mt-1 opacity-70">Find all the pairs with the fewest moves.</p>
@@ -119,7 +146,7 @@ export default function App() {
               aria-pressed={key === level}
               onClick={() => newGame(key)}
               className={`cursor-pointer rounded-full border-2 border-brand-lilac px-[18px] py-2 transition hover:-translate-y-0.5 ${
-                key === level ? "bg-brand-lilac text-white" : ""
+                key === level ? "bg-brand-lilac text-white" : "dark:text-white"
               }`}
             >
               {l.label}
@@ -136,7 +163,7 @@ export default function App() {
           ].map(([label, value]) => (
             <div
               key={label}
-              className="flex min-w-[92px] flex-col rounded-2xl bg-white/70 px-3.5 py-2 text-center"
+              className="flex min-w-[92px] flex-col rounded-2xl bg-white/70 px-3.5 py-2 text-center dark:bg-white/10"
             >
               <span className="text-[13px] opacity-60">{label}</span>
               <b className="text-[22px] font-semibold">{value}</b>
@@ -182,7 +209,7 @@ export default function App() {
               {["🎉", "✨", "💖", "⭐"][i % 4]}
             </i>
           ))}
-          <div className="animate-rise rounded-3xl bg-brand-cream px-10 py-7 text-center">
+          <div className="animate-rise rounded-3xl bg-brand-cream px-10 py-7 text-center dark:bg-[#2b2147]">
             <h2 className="mb-1.5 text-2xl font-semibold">You did it! 🎉</h2>
             <p className="text-xl">
               {moves} moves in {formatTime(seconds)}
